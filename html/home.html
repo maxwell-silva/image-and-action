@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Imagem & Ação - Ações Engraçadas</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    padding: 20px;
+    background-color: #f0f0f0;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+  }
+  .container {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    text-align: center;
+    max-width: 90%;
+  }
+  .acao, .explicacao {
+    margin: 20px 0;
+  }
+  .botao {
+    padding: 10px 15px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    display: inline-block; /* Garante que os botões estejam visíveis */
+  }
+  .trocar {
+    background-color: #007bff;
+    color: white;
+  }
+  .reset {
+    background-color: #cccccc;
+    color: #333;
+    margin-top: 10px;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="acao" id="acao">Clique no botão para começar!</div>
+  <div class="explicacao" id="explicacao">A explicação aparecerá aqui...</div>
+  <button class="botao trocar" id="trocar">Iniciar</button>
+  <button class="botao reset" id="reset" style="display:none;">Resetar</button>
+</div>
+
+<script>
+  let ALREADY_LOADED = [];
+  function carregarAcoes() {
+    const FILE_ACTIONS = "/data/raw/MEDIUM-08-12.csv";
+  fetch(FILE_ACTIONS) // Substitua pela URL correta do arquivo CSV
+    .then(response => response.text())
+    .then(csvText => {
+      Papa.parse(csvText, {
+        header: true,
+        skipEmptyLines: true,
+        complete: function(results) {
+          window.acoes = results.data.map(row => [row.Ação, row.Explicação]);
+          document.getElementById('trocar').style.display = 'inline-block';
+        }
+      });
+    })
+    .catch(error => console.error('Erro ao carregar o arquivo CSV:', error));
+}
+
+function trocarAcao() {
+  if (document.getElementById('trocar').textContent = 'Iniciar') {
+    document.getElementById('trocar').textContent = 'Próxima';
+  }
+  const indice = Math.floor(Math.random() * window.acoes.length);
+  const acao = window.acoes[indice][0];
+  const explicacao = window.acoes[indice][1];
+  if (ALREADY_LOADED.length === window.acoes.length) {
+    window.alert('Você já viu todas as ações! Clique em "Resetar" para começar de novo.');
+    return;
+  }
+
+  if (ALREADY_LOADED.includes(indice) && ALREADY_LOADED.length < window.acoes.length) {
+    console.log('Ação já carregada, buscando outra...');
+    return trocarAcao();
+  }
+
+  ALREADY_LOADED.push(indice);
+
+  document.getElementById('acao').textContent = acao;
+  document.getElementById('explicacao').textContent = explicacao;
+  document.getElementById('reset').style.display = 'inline-block';
+}
+
+function resetar() {
+  document.getElementById('trocar').textContent = 'Iniciar';
+  document.getElementById('acao').textContent = 'Clique no botão para começar!';
+  document.getElementById('explicacao').textContent = 'A explicação aparecerá aqui...';
+  document.getElementById('reset').style.display = 'none';
+  ALREADY_LOADED = [];
+}
+
+document.getElementById('trocar').addEventListener('click', trocarAcao);
+document.getElementById('reset').addEventListener('click', resetar);
+
+// Carrega as ações assim que a página estiver pronta
+carregarAcoes();
+</script>
+
+</body>
+</html>
